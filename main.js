@@ -48,7 +48,10 @@ var job = new CronJob({
 
     // this is where the good stuff happens
     var todaysBriefing = new Briefing();
-    todaysBriefing.isSpanishDay();
+    todaysBriefing.getActiveProjects();
+    todaysBriefing.getWeatherForecast();
+    todaysBriefing.specificDay();
+    todaysBriefing.inSpanishDay();
     todaysBriefing.send();
 
   },
