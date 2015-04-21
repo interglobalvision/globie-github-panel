@@ -1,0 +1,37 @@
+{
+  "name": "globie-daily-briefing",
+  "version": "0.1.0",
+  "description": "Globie bothers us daily",
+  "main": "main.js",
+  "dependencies": {
+    "cron": "^1.0.9",
+    "forecastio": "^0.2.0",
+    "mailgun": "^0.5.0",
+    "moment": "^2.10.2",
+    "node-trello": "^1.1.1",
+    "random-number": "0.0.6"
+  },
+  "devDependencies": {
+    "cron": "^1.0.9",
+    "forecastio": "^0.2.0",
+    "mailgun": "^0.5.0",
+    "node-trello": "^1.1.1",
+    "random-number": "0.0.6"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/interglobalvision/globie-daily-briefing.git"
+  },
+  "keywords": [
+    "globie"
+  ],
+  "author": "interglobal.vision",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/interglobalvision/globie-daily-briefing/issues"
+  },
+  "homepage": "https://github.com/interglobalvision/globie-daily-briefing"
+}
