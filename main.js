@@ -1,3 +1,6 @@
+var dotenv = require('dotenv')
+dotenv.load();
+
 var CronJob = require('cron').CronJob;
 var randomNumber = require('random-number');
 var Trello = require("node-trello");
