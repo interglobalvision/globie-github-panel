@@ -29,7 +29,7 @@ var trello = new Trello(trelloKey, trelloToken);
 
 var randomNumberOptions = {
   min:  1,
-  max:  6,
+  max:  4,
   integer: true
 }
 var getRandom = randomNumber.generator(randomNumberOptions)
@@ -46,7 +46,7 @@ var forecastIo = new ForecastIo(process.env.FORECASTIO_KEY);
 // SETUP CRON
 
 var job = new CronJob({
-  cronTime: '00 30 10 * * 1-5',
+  cronTime: '00 30 08 * * 1-5',
   onTick: function() {
 
     // this is where the good stuff happens
