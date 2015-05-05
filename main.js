@@ -180,7 +180,7 @@ function Briefing() {
 
   this.inSpanishDay = function() {
     if (getRandom() === 1) {
-      this.output.language = 'Bad luck Pat & Miley, today is Spanish Day. Life: the spanish version';
+      this.output.language = 'bad luck pat & miley, hoy es dia de hablar español. Vive la vida loca.';
     } else {
       this.output.language = 'Lo siento Cas: today is White People Rights Day so we speak American English.';
     }
