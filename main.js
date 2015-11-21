@@ -45,7 +45,7 @@ github.authenticate({
 
 var randomNumberOptions = {
   min:  1,
-  max:  6,
+  max:  4,
   integer: true
 }
 var getRandom = randomNumber.generator(randomNumberOptions)
@@ -62,7 +62,7 @@ var forecastIo = new ForecastIo(process.env.FORECASTIO_KEY);
 // SETUP CRON
 
 var job = new CronJob({
-  cronTime: '00 30 10 * * 1-5',
+  cronTime: '00 30 08 * * 1-5',
   onTick: function() {
 
     // this is where the good stuff happens
@@ -243,7 +243,7 @@ function Briefing() {
 
   this.inSpanishDay = function() {
     if (getRandom() === 1) {
-      this.output.language = 'Bad luck Pat & Miley, today is Spanish Day. Life: the spanish version';
+      this.output.language = 'bad luck pat & miley, hoy es dia de hablar español. Vive la vida loca.';
     } else {
       this.output.language = 'Lo siento Cas: today is White People Rights Day so we speak American English.';
     }
