@@ -19,7 +19,17 @@ Also u need a ton of variables, add them in `.env`. Soon to be even more!
 - LATITUDE
 - LONGITUDE
 - MAILGUN_KEY
+- GITHUB_USER
+- GITHUB_PASSWORD
 
 ---
 
-Uses: Trello, Forcast.io, Mailgun, CPUs, Globie
+Uses: Trello, Forcast.io, Mailgun, Github, CPUs, Globie
+
+---
+
+####todo:
+
+- Create dev mode for class that logs and does not mail
+- Make language conditional localize all text in mail
+- Use futures/solve the async issue
