@@ -1,3 +1,5 @@
+require('dotenv').load();
+
 var CronJob = require('cron').CronJob;
 var randomNumber = require('random-number');
 var Trello = require("node-trello");
@@ -20,6 +22,23 @@ var trelloKey = process.env.TRELLO_KEY;
 var trelloToken = process.env.TRELLO_TOKEN;
 
 var trello = new Trello(trelloKey, trelloToken);
+
+
+// SETUP GITHUB
+
+var GitHubApi = require('github');
+
+var github = new GitHubApi({
+  // required
+  version: '3.0.0',
+  // optional
+  debug: false,
+});
+github.authenticate({
+    type: 'basic',
+    username: process.env.GITHUB_USER,
+    password: process.env.GITHUB_PASSWORD
+});
 
 
 // SETUP NUMBER GENERATOR
@@ -68,13 +87,13 @@ function Briefing() {
 
   this.output = {
     day: '',
-    weather: '',
     projects: '',
-    language: ''
+    issues: '',
+    language: '',
+    weather: '',
   },
 
   this.getActiveProjects = function() {
-
     var _this = this;
 
 /*
@@ -96,7 +115,7 @@ function Briefing() {
     });
 */
 
-    var projectReport = 'These projects are active: ';
+    var projectReport = 'These projects are active: \n\n';
 
     // active projects list
     trello.get('/1/lists/547536fcd467d6175c3f600d', { cards: 'open' }, function(err, data) {
@@ -109,12 +128,12 @@ function Briefing() {
 //         console.log(data.cards[index].name);
         projectReport += data.cards[index].name;
         if (index !== (data.cards.length - 1)) {
-          projectReport += ', ';
+          projectReport += '\n';
 
         }
       }
 
-      projectReport += '. So crack on then.';
+      projectReport += '\n\nSo crack on then.';
 
 //       console.log(projectReport);
       _this.output.projects = projectReport;
@@ -123,8 +142,51 @@ function Briefing() {
 
   },
 
-  this.getWeatherForecast = function() {
+  this.getSomeIssues = function() {
+    var _this = this;
+    _this.output.issues = 'Here are 5 Github issues for the day. Clean this list!\n';
 
+    github.issues.getAll({
+      id: 6844994,
+      filter: 'all',
+      state: 'open',
+      per_page: 10,
+    }, function(err, res) {
+      if (err) {
+        console.log(err);
+      }
+
+      var i = 0;
+      res.forEach(function(issue) {
+
+        if (!issue.pull_request && i < 5) {
+
+          var issueText = '';
+
+          issueText += '\nIssue #' + issue.id + ' on ' + issue.repository.name + '\n';
+
+          issueText += 'Title: ' + issue.title + '\n';
+
+          issueText += 'Body: ' + issue.body + '\n\n';
+
+          if (issue.assignee) {
+            issueText += 'Assigned to @' + issue.assignee.login + '! U bad do this ASAP!\n';
+          }
+
+          issueText += issue.html_url + '\n';
+
+          _this.output.issues += issueText;
+
+          i++;
+
+        }
+
+      });
+    });
+
+  },
+
+  this.getWeatherForecast = function() {
     var _this = this;
     var weatherReport = '';
 
@@ -138,7 +200,7 @@ function Briefing() {
       console.log(data.hourly.summary);
 */
 
-      if (data.currently.apparentTemperature > 27) {
+      if (data.currently.apparentTemperature > 23) {
         weatherReport += 'Its already hot at ' + data.currently.apparentTemperature + 'c so drink up thy water today I tell ee.';
       } else {
         weatherReport += 'The temperature is ' + data.currently.apparentTemperature + 'c.';
@@ -162,9 +224,13 @@ function Briefing() {
       // monday
       this.output.day = 'Yes it\'s monday. So timesheets today everyone plz. Lets not overrun projects.';
 
+    } else if (day === 2) {
+      // wednesday
+      this.output.day = 'Remember today we should prioritize Internal Projects. I don\'t just want to be famous for portfolio work.';
+
     } else if (day === 3) {
       // wednesday
-      this.output.day = 'REMEMBER today we should prioritize Internal Projects. I don\'t just want to be famous for portfolio work.';
+      this.output.day = 'Cleaning day so scrub that tub [etc] and get in ASAP!';
 
     } else if (day === 5) {
       // friday
@@ -196,8 +262,10 @@ function Briefing() {
 
       for(var prop in _this.output) {
         if(_this.output.hasOwnProperty(prop))
-          mailContent += _this.output[prop] + ' \n\n';
+          mailContent += _this.output[prop] + ' \n\n----------\n\n';
       }
+
+      mailContent =+ 'Globie @ interglobal.vision :]'
 
       console.log(mailContent);
 
@@ -205,7 +273,31 @@ function Briefing() {
         console.log(err);
       });
 
-    }, 3000)
+    }, 5000);
+
+  },
+
+  this.log = function() {
+
+    var _this = this;
+
+    // this is where we build the message
+    var waitForRequests = setTimeout(function() {
+
+//       console.log(_this.output);
+
+      var mailContent = '';
+
+      for(var prop in _this.output) {
+        if(_this.output.hasOwnProperty(prop))
+          mailContent += _this.output[prop] + ' \n\n----------\n\n';
+      }
+
+      mailContent =+ 'Globie @ interglobal.vision :]'
+
+      console.log(mailContent);
+
+    }, 5000);
 
   }
 
@@ -217,8 +309,9 @@ function Briefing() {
 /*
 var testBriefing = new Briefing();
 testBriefing.getActiveProjects();
+testBriefing.getSomeIssues();
 testBriefing.getWeatherForecast();
 testBriefing.specificDay();
 testBriefing.inSpanishDay();
-testBriefing.send();
+testBriefing.log();
 */
