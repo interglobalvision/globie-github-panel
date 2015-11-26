@@ -46,7 +46,7 @@ github.authenticate({
 var randomNumberOptions = {
   min:  1,
   max:  4,
-  integer: true
+  integer: true,
 }
 var getRandom = randomNumber.generator(randomNumberOptions)
 
@@ -210,10 +210,10 @@ function Briefing() {
       weatherReport += ' The forecast for the rest of the day is: ' + data.hourly.summary;
 
 //       console.log(weatherReport);
+
       _this.output.weather = weatherReport;
 
     });
-
 
   },
 
@@ -239,7 +239,6 @@ function Briefing() {
 
     }
 
-
   },
 
   this.inSpanishDay = function() {
@@ -259,8 +258,8 @@ function Briefing() {
 
       var mailContent = '';
 
-      for(var prop in _this.output) {
-        if(_this.output.hasOwnProperty(prop))
+      for (var prop in _this.output) {
+        if (_this.output.hasOwnProperty(prop))
           mailContent += _this.output[prop] + ' \n\n----------\n\n';
       }
 
@@ -285,12 +284,14 @@ function Briefing() {
 
       var mailContent = '';
 
-      for(var prop in _this.output) {
-        if(_this.output.hasOwnProperty(prop))
+      for (var prop in _this.output) {
+        if (_this.output.hasOwnProperty(prop) && _this.output[prop] !== '')
+
           mailContent += _this.output[prop] + ' \n\n----------\n\n';
+
       }
 
-      mailContent =+ 'Globie @ interglobal.vision :]'
+      mailContent += 'Globie @ interglobal.vision :]'
 
       console.log(mailContent);
 
