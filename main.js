@@ -68,6 +68,7 @@ var job = new CronJob({
     // this is where the good stuff happens
     var todaysBriefing = new Briefing();
     todaysBriefing.getActiveProjects();
+    todaysBriefing.getSomeIssues();
     todaysBriefing.getWeatherForecast();
     todaysBriefing.specificDay();
     todaysBriefing.inSpanishDay();
@@ -225,7 +226,7 @@ function Briefing() {
       this.output.day = 'Yes it\'s monday. So timesheets today everyone plz. Lets not overrun projects.';
 
     } else if (day === 2) {
-      // wednesday
+      // tuesday
       this.output.day = 'Remember today we should prioritize Internal Projects. I don\'t just want to be famous for portfolio work.';
 
     } else if (day === 3) {
@@ -243,7 +244,7 @@ function Briefing() {
 
   this.inSpanishDay = function() {
     if (getRandom() === 1) {
-      this.output.language = 'bad luck pat & miley, hoy es dia de hablar español. Vive la vida loca.';
+      this.output.language = 'Bad luck Pat & Miley, hoy es dia de hablar Español. Vive la vida loca.';
     } else {
       this.output.language = 'Lo siento Cas: today is White People Rights Day so we speak American English.';
     }
@@ -256,8 +257,6 @@ function Briefing() {
     // this is where we build the message
     var waitForRequests = setTimeout(function() {
 
-//       console.log(_this.output);
-
       var mailContent = '';
 
       for(var prop in _this.output) {
@@ -267,10 +266,10 @@ function Briefing() {
 
       mailContent =+ 'Globie @ interglobal.vision :]'
 
-      console.log(mailContent);
-
       mailgun.sendText('globie@interglobal.vision', 'globie@interglobal.vision', 'Globie\'s daily report', mailContent, null, null, function(err) {
-        console.log(err);
+        if (err) {
+          console.log(err);
+        }
       });
 
     }, 5000);
@@ -283,8 +282,6 @@ function Briefing() {
 
     // this is where we build the message
     var waitForRequests = setTimeout(function() {
-
-//       console.log(_this.output);
 
       var mailContent = '';
 
