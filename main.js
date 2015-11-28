@@ -145,6 +145,7 @@ function Briefing() {
 
   this.getSomeIssues = function() {
     var _this = this;
+
     _this.output.issues = 'Here are 5 Github issues for the day. Clean this list!\n';
 
     github.issues.getAll({
@@ -218,7 +219,6 @@ function Briefing() {
   },
 
   this.specificDay = function() {
-
     var day = moment().days();
 
     if (day === 1) {
@@ -250,7 +250,6 @@ function Briefing() {
   },
 
   this.send = function() {
-
     var _this = this;
 
     // this is where we build the message
@@ -263,53 +262,35 @@ function Briefing() {
           mailContent += _this.output[prop] + ' \n\n----------\n\n';
       }
 
-      mailContent =+ 'Globie @ interglobal.vision :]'
-
-      mailgun.sendText('globie@interglobal.vision', 'globie@interglobal.vision', 'Globie\'s daily report', mailContent, null, null, function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
-
-    }, 5000);
-
-  },
-
-  this.log = function() {
-
-    var _this = this;
-
-    // this is where we build the message
-    var waitForRequests = setTimeout(function() {
-
-      var mailContent = '';
-
-      for (var prop in _this.output) {
-        if (_this.output.hasOwnProperty(prop) && _this.output[prop] !== '')
-
-          mailContent += _this.output[prop] + ' \n\n----------\n\n';
-
-      }
-
       mailContent += 'Globie @ interglobal.vision :]'
 
-      console.log(mailContent);
+      if (process.env.DEBUG === 'TRUE') {
+
+        console.log(mailContent);
+
+      } else {
+
+        mailgun.sendText('globie@interglobal.vision', 'globie@interglobal.vision', 'Globie\'s daily report', mailContent, null, null, function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+
+      }
 
     }, 5000);
 
   }
 
-}
+};
 
 
 // DEV
 
-/*
 var testBriefing = new Briefing();
 testBriefing.getActiveProjects();
 testBriefing.getSomeIssues();
 testBriefing.getWeatherForecast();
 testBriefing.specificDay();
 testBriefing.inSpanishDay();
-testBriefing.log();
-*/
+testBriefing.send();

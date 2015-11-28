@@ -8,6 +8,7 @@ npm install
 cp .env.example .env
 ```
 - then u just do the other stuff
+- for debug/dev mode run with `DEBUG=TRUE node main.js`
 
 ## ¿RTFM?!
 
@@ -30,6 +31,5 @@ Uses: Trello, Forcast.io, Mailgun, Github, CPUs, Globie
 
 ####todo:
 
-- Create dev mode for class that logs and does not mail
 - Make language conditional localize all text in mail
 - Use futures/solve the async issue
