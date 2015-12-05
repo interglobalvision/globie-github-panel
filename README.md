@@ -16,7 +16,6 @@ Also u need a ton of variables, add them in `.env`. Soon to be even more!
 
 - TRELLO_KEY
 - TRELLO_TOKEN
-- FORECASTIO_KEY
 - LATITUDE
 - LONGITUDE
 - MAILGUN_KEY
@@ -25,11 +24,10 @@ Also u need a ton of variables, add them in `.env`. Soon to be even more!
 
 ---
 
-Uses: Trello, Forcast.io, Mailgun, Github, CPUs, Globie
+Uses: Trello, Mailgun, Github, CPUs, Globie
 
 ---
 
 ####todo:
 
 - Make language conditional localize all text in mail
-- Use futures/solve the async issue

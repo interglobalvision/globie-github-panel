@@ -1,9 +1,9 @@
 require('dotenv').load();
+var Promise = require('promise');
 
 var CronJob = require('cron').CronJob;
 var randomNumber = require('random-number');
 var Trello = require("node-trello");
-var ForecastIo = require('forecastio');
 var Mailgun = require('mailgun').Mailgun;
 var moment = require('moment');
 
@@ -51,14 +51,6 @@ var randomNumberOptions = {
 var getRandom = randomNumber.generator(randomNumberOptions)
 
 
-// SETUP FORECAST.IO
-
-var forecastIoOptions = {
-  units: 'si'
-};
-var forecastIo = new ForecastIo(process.env.FORECASTIO_KEY);
-
-
 // SETUP CRON
 
 var job = new CronJob({
@@ -67,11 +59,6 @@ var job = new CronJob({
 
     // this is where the good stuff happens
     var todaysBriefing = new Briefing();
-    todaysBriefing.getActiveProjects();
-    todaysBriefing.getSomeIssues();
-    todaysBriefing.getWeatherForecast();
-    todaysBriefing.specificDay();
-    todaysBriefing.inSpanishDay();
     todaysBriefing.send();
 
   },
@@ -84,7 +71,13 @@ job.start();
 
 // THE BRIEFING OBJECT
 
-function Briefing() {
+var Briefing = function() {
+
+  if (getRandom() === 1) {
+    this.isSpanishDay = true;
+  } else {
+    this.isSpanishDay = false;
+  }
 
   this.output = {
     day: '',
@@ -94,50 +87,50 @@ function Briefing() {
     weather: '',
   },
 
-  this.getActiveProjects = function() {
+  this.getSomeProjects = function() {
     var _this = this;
 
-/*
-    trello.get('/1/organizations/intgblvsn', { boards: 'open' }, function(err, data) {
-      if (err) {
-        throw err;
-      }
-      console.log(data);
-    });
-*/
+    return new Promise(function(resolve, reject) {
 
-    // general board
-/*
-    trello.get('/1/boards/545c25db2196338ba228b5aa', { lists: 'open' }, function(err, data) {
-      if (err) {
-        throw err;
-      }
-      console.log(data.lists);
-    });
-*/
-
-    var projectReport = 'These projects are active: \n\n';
-
-    // active projects list
-    trello.get('/1/lists/547536fcd467d6175c3f600d', { cards: 'open' }, function(err, data) {
-      if (err) {
-        throw err;
-      }
-
-      var index;
-      for (index = 0; index < data.cards.length; ++index) {
-//         console.log(data.cards[index].name);
-        projectReport += data.cards[index].name;
-        if (index !== (data.cards.length - 1)) {
-          projectReport += '\n';
-
+      // active projects list
+      trello.get('/1/lists/547536fcd467d6175c3f600d', { cards: 'open' }, function(err, res) {
+        if (err) {
+          console.log(err);
+          reject(err);
+        } else {
+           _this.someProjects = res;
+          resolve(res);
         }
-      }
+
+      });
+
+    });
+
+  },
+
+  this.buildProjectsText = function() {
+    var _this = this;
+
+    return new Promise(function(resolve, reject) {
+
+      var projectReport = 'These projects are active: \n\n';
+
+      var i = 0;
+      _this.someProjects.cards.forEach(function(card) {
+
+        projectReport += card.name;
+
+        if (i !== (_this.someProjects.cards.length - 1)) {
+          projectReport += '\n';
+        }
+
+        i++;
+
+      });
 
       projectReport += '\n\nSo crack on then.';
 
-//       console.log(projectReport);
-      _this.output.projects = projectReport;
+      resolve(projectReport);
 
     });
 
@@ -146,20 +139,35 @@ function Briefing() {
   this.getSomeIssues = function() {
     var _this = this;
 
-    _this.output.issues = 'Here are 5 Github issues for the day. Clean this list!\n';
+    return new Promise(function(resolve, reject) {
 
-    github.issues.getAll({
-      id: 6844994,
-      filter: 'all',
-      state: 'open',
-      per_page: 10,
-    }, function(err, res) {
-      if (err) {
-        console.log(err);
-      }
+      github.issues.getAll({
+        id: 6844994,
+        filter: 'all',
+        state: 'open',
+        per_page: 10,
+      }, function(err, res) {
+        if (err) {
+          console.log(err);
+          reject(err);
+        } else {
+          _this.someIssues = res;
+          resolve(res);
+        }
+      });
+    });
+
+  },
+
+  this.buildIssuesText = function() {
+    var _this = this;
+
+    return new Promise(function(resolve, reject) {
+
+      var issuesText = 'Here are 5 Github issues for the day. Clean this list!\n';
 
       var i = 0;
-      res.forEach(function(issue) {
+      _this.someIssues.forEach(function(issue) {
 
         if (!issue.pull_request && i < 5) {
 
@@ -177,108 +185,68 @@ function Briefing() {
 
           issueText += issue.html_url + '\n';
 
-          _this.output.issues += issueText;
+          issuesText += issueText;
 
           i++;
 
         }
 
       });
-    });
 
-  },
-
-  this.getWeatherForecast = function() {
-    var _this = this;
-    var weatherReport = '';
-
-    forecastIo.forecast(latitude, longitude, forecastIoOptions, function(err, data) {
-      if (err) {
-        throw err;
-      }
-/*
-      console.log(JSON.stringify(data, null, 2));
-      console.log(data.currently);
-      console.log(data.hourly.summary);
-*/
-
-      if (data.currently.apparentTemperature > 23) {
-        weatherReport += 'Its already hot at ' + data.currently.apparentTemperature + 'c so drink up thy water today I tell ee.';
-      } else {
-        weatherReport += 'The temperature is ' + data.currently.apparentTemperature + 'c.';
-      }
-
-      weatherReport += ' The forecast for the rest of the day is: ' + data.hourly.summary;
-
-//       console.log(weatherReport);
-
-      _this.output.weather = weatherReport;
+      resolve(issuesText);
 
     });
 
-  },
-
-  this.specificDay = function() {
-    var day = moment().days();
-
-    if (day === 1) {
-      // monday
-      this.output.day = 'Yes it\'s monday. So timesheets today everyone plz. Lets not overrun projects.';
-
-    } else if (day === 2) {
-      // tuesday
-      this.output.day = 'Remember today we should prioritize Internal Projects. I don\'t just want to be famous for portfolio work.';
-
-    } else if (day === 3) {
-      // wednesday
-      this.output.day = 'Cleaning day so scrub that tub [etc] and get in ASAP!';
-
-    } else if (day === 5) {
-      // friday
-      this.output.day = 'tbh why are you even here? If you are you should remember to clock off early.';
-
-    }
-
-  },
-
-  this.inSpanishDay = function() {
-    if (getRandom() === 1) {
-      this.output.language = 'Bad luck Pat & Miley, hoy es dia de hablar Español. Vive la vida loca.';
-    } else {
-      this.output.language = 'Lo siento Cas: today is White People Rights Day so we speak American English.';
-    }
   },
 
   this.send = function() {
     var _this = this;
 
-    // this is where we build the message
-    var waitForRequests = setTimeout(function() {
+    Promise.all([_this.getSomeProjects(), _this.getSomeIssues()])
+      .then(function(res) {
+        Promise.all([_this.buildProjectsText(), _this.buildIssuesText()])
+          .then(function(res) {
+            var email = '';
+            var day = moment().days();
 
-      var mailContent = '';
+            if (day === 1) {
+              // monday
+              email += 'Yes it\'s monday. So timesheets today everyone plz. Lets not overrun projects.';
+            } else if (day === 2) {
+              // tuesday
+              email += 'Remember today we should prioritize Internal Projects. I don\'t just want to be famous for portfolio work.';
+            } else if (day === 3) {
+              // wednesday
+              email += 'Cleaning day so scrub that tub [etc] and get in ASAP!';
+            } else if (day === 5) {
+              // friday
+              email += 'tbh why are you even here? If you are you should remember to clock off early.';
+            }
 
-      for (var prop in _this.output) {
-        if (_this.output.hasOwnProperty(prop))
-          mailContent += _this.output[prop] + ' \n\n----------\n\n';
-      }
+            email += ' \n\n----------\n\n';
 
-      mailContent += 'Globie @ interglobal.vision :]'
+            res.forEach(function(section) {
+              email += section + ' \n\n----------\n\n';
+            });
 
-      if (process.env.DEBUG === 'TRUE') {
+            email += 'Globie @ interglobal.vision :]'
 
-        console.log(mailContent);
+            if (process.env.DEBUG === 'TRUE') {
 
-      } else {
+              console.log(email);
 
-        mailgun.sendText('globie@interglobal.vision', 'globie@interglobal.vision', 'Globie\'s daily report', mailContent, null, null, function(err) {
-          if (err) {
-            console.log(err);
-          }
-        });
+            } else {
 
-      }
+              mailgun.sendText('globie@interglobal.vision', 'globie@interglobal.vision', 'Globie\'s daily report', email, null, null, function(err) {
+                if (err) {
+                  console.log(err);
+                }
+              });
 
-    }, 5000);
+            }
+
+          });
+      });
 
   }
 
@@ -286,11 +254,7 @@ function Briefing() {
 
 
 // DEV
-
-var testBriefing = new Briefing();
-testBriefing.getActiveProjects();
-testBriefing.getSomeIssues();
-testBriefing.getWeatherForecast();
-testBriefing.specificDay();
-testBriefing.inSpanishDay();
-testBriefing.send();
+if (process.env.DEBUG === 'TRUE') {
+  var testBriefing = new Briefing();
+  testBriefing.send();
+}
