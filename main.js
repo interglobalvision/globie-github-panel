@@ -15,7 +15,7 @@ var longitude = process.env.LONGITUDE;
 i18n.configure({
   locales:['en', 'es'],
   directory: __dirname + '/locales',
-  defaultLocale: 'es',
+  defaultLocale: 'en',
 });
 
 // SETUP MAILGUN
@@ -178,11 +178,11 @@ var Briefing = function() {
 
           var issueText = '';
 
-          issueText += i18n.__('\nIssue #%s on %s \n', issue.id, issue.repository.name);
+          issueText += '\n' + i18n.__('Issue #%s on %s', issue.id, issue.repository.name) + '\n';
 
-          issueText += i18n.__('Title: %s \n', issue.title);
+          issueText += i18n.__('Title: %s', issue.title) + '\n';
 
-          issueText += i18n.__('Body: %s \n\n', issue.body);
+          issueText += i18n.__('Body: %s', issue.body) + '\n\n';
 
           if (issue.assignee) {
             issueText += i18n.__('Assigned to @ %s! U bad do this ASAP!', issue.assignee.login) + '\n';
