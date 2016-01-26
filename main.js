@@ -6,10 +6,17 @@ var randomNumber = require('random-number');
 var Trello = require("node-trello");
 var Mailgun = require('mailgun').Mailgun;
 var moment = require('moment');
+var i18n = require("i18n");
 
 var latitude = process.env.LATITUDE;
 var longitude = process.env.LONGITUDE;
 
+// SETUP i18n
+i18n.configure({
+  locales:['en', 'es'],
+  directory: __dirname + '/locales',
+  defaultLocale: 'es',
+});
 
 // SETUP MAILGUN
 
@@ -35,9 +42,9 @@ var github = new GitHubApi({
   debug: false,
 });
 github.authenticate({
-    type: 'basic',
-    username: process.env.GITHUB_USER,
-    password: process.env.GITHUB_PASSWORD
+  type: 'basic',
+  username: process.env.GITHUB_USER,
+  password: process.env.GITHUB_PASSWORD
 });
 
 
@@ -74,10 +81,8 @@ job.start();
 var Briefing = function() {
 
   if (getRandom() === 1) {
-    this.isSpanishDay = true;
-  } else {
-    this.isSpanishDay = false;
-  }
+    i18n.setLocale('es');
+  } 
 
   this.output = {
     day: '',
@@ -98,7 +103,7 @@ var Briefing = function() {
           console.log(err);
           reject(err);
         } else {
-           _this.someProjects = res;
+          _this.someProjects = res;
           resolve(res);
         }
 
@@ -113,7 +118,7 @@ var Briefing = function() {
 
     return new Promise(function(resolve, reject) {
 
-      var projectReport = 'These projects are active: \n\n';
+      var projectReport = i18n.__('These projects are active') + ': \n\n';
 
       var i = 0;
       _this.someProjects.cards.forEach(function(card) {
@@ -128,7 +133,7 @@ var Briefing = function() {
 
       });
 
-      projectReport += '\n\nSo crack on then.';
+      projectReport += '\n\n' + i18n.__('So crack on then.');
 
       resolve(projectReport);
 
@@ -164,7 +169,7 @@ var Briefing = function() {
 
     return new Promise(function(resolve, reject) {
 
-      var issuesText = 'Here are 5 Github issues for the day. Clean this list!\n';
+      var issuesText = i18n.__('Here are 5 Github issues for the day. Clean this list!') + '\n';
 
       var i = 0;
       _this.someIssues.forEach(function(issue) {
@@ -173,14 +178,14 @@ var Briefing = function() {
 
           var issueText = '';
 
-          issueText += '\nIssue #' + issue.id + ' on ' + issue.repository.name + '\n';
+          issueText += i18n.__('\nIssue #%s on %s \n', issue.id, issue.repository.name);
 
-          issueText += 'Title: ' + issue.title + '\n';
+          issueText += i18n.__('Title: %s \n', issue.title);
 
-          issueText += 'Body: ' + issue.body + '\n\n';
+          issueText += i18n.__('Body: %s \n\n', issue.body);
 
           if (issue.assignee) {
-            issueText += 'Assigned to @' + issue.assignee.login + '! U bad do this ASAP!\n';
+            issueText += i18n.__('Assigned to @ %s! U bad do this ASAP!', issue.assignee.login) + '\n';
           }
 
           issueText += issue.html_url + '\n';
@@ -203,52 +208,52 @@ var Briefing = function() {
     var _this = this;
 
     Promise.all([_this.getSomeProjects(), _this.getSomeIssues()])
+    .then(function(res) {
+      Promise.all([_this.buildProjectsText(), _this.buildIssuesText()])
       .then(function(res) {
-        Promise.all([_this.buildProjectsText(), _this.buildIssuesText()])
-          .then(function(res) {
-            var email = '';
-            var day = moment().days();
+        var email = '';
+        var day = moment().days();
 
-            if (day === 1) {
-              // monday
-              email += 'Yes it\'s monday. So timesheets today everyone plz. Lets not overrun projects.';
-            } else if (day === 2) {
-              // tuesday
-              email += 'Remember today we should prioritize Internal Projects. I don\'t just want to be famous for portfolio work.';
-            } else if (day === 3) {
-              // wednesday
-              email += 'Cleaning day so scrub that tub [etc] and get in ASAP!';
-            } else if (day === 5) {
-              // friday
-              email += 'tbh why are you even here? If you are you should remember to clock off early.';
-            }
+        if (day === 1) {
+          // monday
+          email += i18n.__('Yes it\'s monday. So timesheets today everyone plz. Lets not overrun projects.');
+        } else if (day === 2) {
+          // tuesday
+          email += i18n.__('Remember today we should prioritize Internal Projects. I don\'t just want to be famous for portfolio work.');
+        } else if (day === 3) {
+          // wednesday
+          email += i18n.__('Cleaning day so scrub that tub [etc] and get in ASAP!');
+        } else if (day === 5) {
+          // friday
+          email += i18n.__('tbh why are you even here? If you are you should remember to clock off early.');
+        }
 
-            email += ' \n\n----------\n\n';
+        email += ' \n\n----------\n\n';
 
-            res.forEach(function(section) {
-              email += section + ' \n\n----------\n\n';
-            });
+        res.forEach(function(section) {
+          email += section + ' \n\n----------\n\n';
+        });
 
-            email += 'Globie @ interglobal.vision :]'
+        email += 'Globie @ interglobal.vision :]'
 
-            if (process.env.DEBUG === 'TRUE') {
+        if (process.env.DEBUG === 'TRUE') {
 
-              console.log(email);
+          console.log(email);
 
-            } else {
+        } else {
 
-              mailgun.sendText('globie@interglobal.vision', 'globie@interglobal.vision', 'Globie\'s daily report', email, null, null, function(err) {
-                if (err) {
-                  console.log(err);
-                }
-              });
+          mailgun.sendText('globie@interglobal.vision', 'globie@interglobal.vision', 'Globie\'s daily report', email, null, null, function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
 
-            }
+      }
 
-          });
-      });
+    });
+  });
 
-  }
+}
 
 };
 
