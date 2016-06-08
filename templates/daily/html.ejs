@@ -1,29 +1,48 @@
-<div class="container">
-  <h1>Globie Daily Briefing</h1>
+<html>
+  <body>
+    <div class="container">
+      <h1>Globie Daily Briefing</h1>
 
-  <h3><%= day %></h3>
+      <h3><%= day %></h3>
 
-  <h3>Language is: <%= language %></h3>
+      <hr/>
 
-  <h3>Active Projects</h3>
+      <h3>Language today is: <%= language %></h3>
 
-  <ul>
-  <% for(var i=0; i<projects.length; i++) {%>
-    <li>
-      <h4><%= projects[i].name %></h4>
-    </li>
-  <% } %>
-  </ul>
+      <hr/>
 
-  <h3>Issues!</h3>
+      <h2>Active Projects:</h2>
 
-  <ul>
-  <% for(var i=0; i<issues.length; i++) {%>
-    <li>
-      <h6>#<%= issues[i].id %>: <%= issues[i].repository.name %></h6>
-      <h4><%= issues[i].title %></h4>
-      <p><%= issues[i].body %></p>
-    </li>
-  <% } %>
-  </ul>
-</div>
+      <ul>
+      <% for(var i=0; i<projects.length; i++) {%>
+        <a href="<%= projects[i].url %>">
+          <li>
+            <h3><%= projects[i].name %></h3>
+          </li>
+        </a>
+      <% } %>
+      </ul>
+
+      <hr/>
+
+      <h2>Issues!</h2>
+
+      <ul>
+      <% for(var i=0; i<issues.length; i++) {%>
+        <a href="<%= issues[i].html_url %>">
+          <li>
+            <h6>#<%= issues[i].id %>: <%= issues[i].repository.name %></h6>
+            <h4><%= issues[i].title %></h4>
+            <p><%= issues[i].body %></p>
+          </li>
+        </a>
+      <% } %>
+      </ul>
+
+      <hr/>
+
+      <p>Much love from Globie</p>
+
+    </div>
+  </body>
+</html>
