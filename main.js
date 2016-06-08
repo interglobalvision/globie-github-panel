@@ -87,9 +87,6 @@ var Briefing = function() {
 
     }
 
-      _this.send();
-
-
   },
 
   this.setupCron = function() {
@@ -288,6 +285,10 @@ var Briefing = function() {
         console.log('Sending Mail');
         _this.sendMail(result);
 
+      } else {
+
+        console.log('HTML Mail to send:', result.html);
+
       }
 
     });
@@ -295,8 +296,6 @@ var Briefing = function() {
   },
 
   this.sendMail = function(mail) {
-
-    console.log('HTML mail to send', mail.html);
 
     mailgun.sendRaw('globie@interglobal.vision', 'globie@interglobal.vision',
       'From: globie@interglobal.vision' +
