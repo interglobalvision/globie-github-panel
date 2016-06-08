@@ -1,0 +1,29 @@
+<div class="container">
+  <h1>Globie Daily Briefing</h1>
+
+  <h3><%= day %></h3>
+
+  <h3>Language is: <%= language %></h3>
+
+  <h3>Active Projects</h3>
+
+  <ul>
+  <% for(var i=0; i<projects.length; i++) {%>
+    <li>
+      <h4><%= projects[i].name %></h4>
+    </li>
+  <% } %>
+  </ul>
+
+  <h3>Issues!</h3>
+
+  <ul>
+  <% for(var i=0; i<issues.length; i++) {%>
+    <li>
+      <h6>#<%= issues[i].id %>: <%= issues[i].repository.name %></h6>
+      <h4><%= issues[i].title %></h4>
+      <p><%= issues[i].body %></p>
+    </li>
+  <% } %>
+  </ul>
+</div>
