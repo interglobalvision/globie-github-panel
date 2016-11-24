@@ -1,0 +1,142 @@
+  // styl property ordering: https://github.com/rossPatton/stylint/blob/master/src/data/ordering.json
+
+@import 'kouto-swiss'
+@import 'helpers'
+
+// ******************************************************
+
+// RESETS
+
+meyer-reset()
+box-sizing-reset()
+normalize()
+
+// ******************************************************
+
+// GRID
+
+@import 'grid'
+
+// ******************************************************
+
+// TYPOGRAPHY
+
+@import 'type'
+
+// ******************************************************
+
+// VARIABLES
+
+$color-black = rgb(0, 0, 0)
+$color-white = rgb(255, 255, 255)
+
+// ******************************************************
+
+// BASIC
+
+html
+  background-color: $color-white
+  color: $color-black
+
+img
+  max-width: 100%
+  height: auto
+
+.mobile-only
+  display: initial !important 
+  
+.desktop-only
+  display: none !important
+
+// ******************************************************
+
+// MEDIA QUERIES
+
+$gutter = 14px 
+
+$margin-micro = ($gutter / 3)
+$margin-tiny = ($gutter / 2)
+$margin-small = ($gutter)
+$margin-basic = ($gutter * 2)
+$margin-mid = ($gutter * 3.5)
+$margin-large = ($gutter * 5)
+    
+$font-size-basic = 12px
+$font-size-extra = 36px
+$font-size-large = 28px
+$font-size-mid = 21px
+$font-size-small = 16px
+$font-size-tiny = 12px
+$font-size-micro = 10px
+
+grid(96%, $gutter, s)
+
+space-maker($margin-micro, $margin-tiny, $margin-small, $margin-basic, $margin-mid, $margin-large)
+
+font-sizes($font-size-basic, font-size-extra, $font-size-large, $font-size-mid, $font-size-small, $font-size-tiny, $font-size-micro)
+
+@import 'responsive/mobile'
+
+@media screen and (min-width: 720px)
+
+  $gutter = 21px
+  
+  $margin-micro = ($gutter / 3)
+  $margin-tiny = ($gutter / 2)
+  $margin-small = ($gutter)
+  $margin-basic = ($gutter * 2)
+  $margin-mid = ($gutter * 3.5)
+  $margin-large = ($gutter * 5)
+  
+  $font-size-basic = 14px
+  
+  space-maker($margin-micro, $margin-tiny, $margin-small, $margin-basic, $margin-mid, $margin-large)
+  
+  grid(680px, $gutter, m)
+  
+  font-size($font-size-basic)
+  
+  .mobile-only
+    display: none !important
+  
+  @import 'responsive/tablet'
+
+@media screen and (min-width: 1024px)
+
+  $gutter = 24px
+
+  $margin-micro = ($gutter / 3)
+  $margin-tiny = ($gutter / 2)
+  $margin-small = ($gutter)
+  $margin-basic = ($gutter * 2)
+  $margin-mid = ($gutter * 3.5)
+  $margin-large = ($gutter * 5)
+  
+  $font-size-basic = 16px
+
+  grid(1000px, $gutter, l)
+  
+  space-maker($margin-micro, $margin-tiny, $margin-small, $margin-basic, $margin-mid, $margin-large)
+  
+  font-size($font-size-basic)
+  
+  .desktop-only
+    display: initial !important
+
+  @import 'responsive/desktop'
+  
+@media screen and (min-width: 1280px)
+  
+  grid(1200px)
+
+@media screen and (min-width: 1366px)
+
+  grid(1300px)
+
+@media screen and (min-width: 1680px)
+
+  grid(1600px)
+
+@media screen and (min-width: 1920px)
+
+  grid(1800px)
